@@ -24,12 +24,12 @@ bash setup_env.sh
 We will implement the building blocks of autoregressive, masked, and multimodal models and train them on language and image modeling tasks.
 
 You will primarily run the following files:
-1. Jupyter notebooks: `nano4M/notebooks/` 
+1. Jupyter notebooks: `notebooks/` 
    - Usage: Introduction of the week's tasks and inference (post-training result generation and analysis).
 2. Main training script: `run_training.py` 
    - Usage: Train your models after implementing the building blocks (refer to the notebooks for more details).
 
-### Jupyter notebooks `nano4M/notebooks/`:
+### Jupyter notebooks `notebooks/`:
 To use the Jupyter notebooks, activate the `nano4m` environment and run the notebooks. 
 ### Main training script `run_training.py`:
 
