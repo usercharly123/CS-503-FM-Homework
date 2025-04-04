@@ -1,6 +1,6 @@
-# CS503 - nano4M Homework  
+# CS503 - Foundation Model Homework  
 
-Welcome to the nano4M exercises! This homework consists of three parts:  
+Welcome to the foundation model exercises! This homework consists of three parts:  
 
 1) In part 1, we start by implementing the necessary building blocks to construct an autoregressive Transformer, like GPT.
 2) In part 2, we will build a masked model in the style of MaskGIT.  
