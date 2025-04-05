@@ -106,7 +106,7 @@ class Attention(nn.Module):
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads L L].
         # Hint: Use the already defined self.scale
-        attn = 1/self.scale * (q @ k.transpose(-2, -1))
+        attn = 1/self.scale * (q @ k.transpose(-2, -1)) # invert the last two dimensions of k to get [B num_heads head_dim L]
 
         if mask is not None:
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
