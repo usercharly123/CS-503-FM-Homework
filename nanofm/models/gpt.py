@@ -58,7 +58,7 @@ class GPT(nn.Module):
         self.max_seq_len = max_seq_len
         self.init_std = init_std
 
-        self.input_embedding = nn.Linear(vocab_size, dim) # TODO: Define the input embedding layer
+        self.input_embedding = nn.Linear(1, dim) # TODO: Define the input embedding layer
         self.positional_embedding = nn.Parameter(torch.randn(1, max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
         self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
