@@ -118,14 +118,13 @@ class GPT(nn.Module):
         
         # TODO: Add the positional embeddings to the tokens
         # Hint: Make sure this works for sequences of different lengths
-        x = x_embedded + self.positional_embedding.unsqueeze(0) # To match the dimensions of x_embedded
+        x = x_embedded + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of x_embedded
 
         # TODO: Define the causal mask for the transformer trunk. 
         # False = masked-out, True = not masked. Shape: [1, L, L]
         # Hint: What shape should the mask have such that each token can attend to itself and
         # all previous tokens, but not to any future tokens?
-        mask = torch.triu(torch.ones((1, L, L), device=self.device), diagonal=1).bool()
-        mask = ~mask
+        mask = torch.tril(torch.ones((1, L, L), device=self.device), diagonal=1).bool()
             
         # TODO: Forward pass through Transformer trunk
         # Hint: Make sure to pass the causal mask to the transformer trunk too
