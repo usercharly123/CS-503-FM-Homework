@@ -102,7 +102,7 @@ class Attention(nn.Module):
         B, L, D = x.shape # Batch size, sequence length, and dimension
 
         # TODO: Compute the keys K, queries Q, and values V from x. Each should be of shape [B num_heads L head_dim].
-        qkv = rearrange(self.qkv(x), "B L (three head_dim num_heads) -> three B num_heads L head_dim", num_heads=self.num_heads)
+        qkv = rearrange(self.qkv(x), "B L (three head_dim num_heads) -> three B num_heads L head_dim", num_heads=self.num_heads, three=3)
         q = qkv[0] # [B num_heads L head_dim]
         k = qkv[1] # [B num_heads L head_dim]   
         v = qkv[2] # [B num_heads L head_dim]   
