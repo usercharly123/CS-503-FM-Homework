@@ -59,7 +59,7 @@ class GPT(nn.Module):
         self.init_std = init_std
 
         self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=padding_idx) # TODO: Define the input embedding layer
-        self.positional_embedding = nn.Parameter(torch.randn(1, max_seq_len, dim)) # TODO: Define the learnable positional embedding
+        self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
         self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
         
@@ -114,7 +114,7 @@ class GPT(nn.Module):
         B, L = x.size() # batch size and sequence length
 
         # TODO: Embed the input tokens using the input embedding layer. Shape: [B, L, D]
-        x_embedded = self.input_embedding(x) 
+        x_embedded = self.input_embedding(x)
         
         # TODO: Add the positional embeddings to the tokens
         # Hint: Make sure this works for sequences of different lengths
