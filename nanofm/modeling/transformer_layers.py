@@ -112,7 +112,7 @@ class Attention(nn.Module):
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
             # TODO: Apply the optional attention mask. Wherever the mask is False, replace the attention 
             # matrix value by negative infinity → zero attention weight after softmax.
-            attn = attn.masked_fill(mask == 0, float("-inf"))
+            attn = attn.masked_fill(mask, float("-inf"))
 
         # TODO: Compute the softmax over the last dimension
         attn = F.softmax(attn, dim=-1)
