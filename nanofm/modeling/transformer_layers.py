@@ -102,8 +102,10 @@ class Attention(nn.Module):
         B, L, D = x.shape # Batch size, sequence length, and dimension
 
         # TODO: Compute the keys K, queries Q, and values V from x. Each should be of shape [B num_heads L head_dim].
-        qkv = self.qkv(x).reshape(B, L, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
-        q, k, v = qkv.unbind(0)  # Each [B, num_heads, L, head_dim]  
+        qkv = rearrange(self.qkv(x), "B L (three head_dim num_heads) -> three B num_heads L head_dim", num_heads=self.num_heads, three=3)
+        q = qkv[0] # [B num_heads L head_dim]
+        k = qkv[1] # [B num_heads L head_dim]   
+        v = qkv[2] # [B num_heads L head_dim]   
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads L L].
         # Hint: Use the already defined self.scale
@@ -139,9 +141,9 @@ class Block(nn.Module):
     """
     def __init__(self, dim: int, head_dim: int = 64, mlp_ratio: float = 4., use_bias: bool = False):
         super().__init__()
-        self.norm1 = LayerNorm(dim,bias=use_bias) # TODO (use the LayerNorm defined above)
+        self.norm1 = LayerNorm(dim) # TODO (use the LayerNorm defined above)
         self.attn = Attention(dim, head_dim=head_dim, qkv_bias=use_bias, proj_bias=use_bias) # TODO
-        self.norm2 = LayerNorm(dim,bias=use_bias) # TODO (use the LayerNorm defined above)
+        self.norm2 = LayerNorm(dim) # TODO (use the LayerNorm defined above)
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.mlp = Mlp(dim, mlp_hidden_dim, dim, bias=use_bias) # TODO
 
