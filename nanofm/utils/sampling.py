@@ -58,7 +58,7 @@ def sample_tokens(logits, temperature=1.0, top_k=0.0, top_p=0.0):
         sampled_probs = torch.ones_like(samples, dtype=torch.float32)
     else:
         filtered_logits = top_k_top_p_filtering(logits, top_k, top_p)
-        probs = F.softmax(filtered_logits / temperature, dim=-1)
-        samples = torch.multinomial(probs, 1)[:, 0]
-        sampled_probs = probs[torch.arange(len(samples)), samples]
+        probs = F.softmax(filtered_logits / temperature, dim=-1)        # shape (batch_size, vocab_size)
+        samples = torch.multinomial(probs, 1)[:, 0]         # shape (batch_size,)
+        sampled_probs = probs[torch.arange(len(samples)), samples]      # shape (batch_size,)
     return samples, sampled_probs
