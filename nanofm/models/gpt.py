@@ -63,7 +63,7 @@ class GPT(nn.Module):
         
         self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
         
-        self.out_norm = LayerNorm(dim, use_bias=use_bias) # TODO: Define the output layer normalization. Use the LayerNorm class defined in modeling/transformer_layers.py
+        self.out_norm = LayerNorm(dim, bias=use_bias) # TODO: Define the output layer normalization. Use the LayerNorm class defined in modeling/transformer_layers.py
         self.to_logits = self.Linear(dim, vocab_size, bias=False) # TODO: Define the output projection layer
 
         self.initialize_weights() # Weight initialization
