@@ -102,11 +102,11 @@ class Attention(nn.Module):
         B, L, D = x.shape # Batch size, sequence length, and dimension
 
         # TODO: Compute the keys K, queries Q, and values V from x. Each should be of shape [B num_heads L head_dim].
-        q, k, v = self.qkv(x).reshape(3, B, self.num_heads, L, -1)
+        q, k, v = rearrange(self.qkv(x), "b l (h d) -> b h l d", h=self.num_heads).chunk(3, dim=2)
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads L L].
         # Hint: Use the already defined self.scale
-        attn = (q @ k.T)/self.scale
+        attn = 1/self.scale * (q @ k.transpose(-2, -1))
 
         if mask is not None:
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
