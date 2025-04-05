@@ -210,10 +210,10 @@ class GPT(nn.Module):
             # Hint: Use the sample_tokens function from utils/sampling.py
             # Make sure to pass the temperature, top_k and top_p arguments
             last_logit = logits[:, -1, :]      # Shape: (B, vocab_size) with batch size B=1 at inference time
-            token, probs = sample_tokens(last_logit, temp, top_k, top_p)      # Here we call "samples" because of size B
+            token, _ = sample_tokens(last_logit, temp, top_k, top_p)     
 
             # Concatenate the new token to the current_tokens sequence
-            current_tokens = torch.cat([current_tokens, token.unsqueeze(0)], dim=1)
+            current_tokens = torch.cat([current_tokens, token.unsqueeze(1)], dim=1)
 
             # Break if the end-of-sequence token is generated
             if eos_idx is not None and token.item() == eos_idx:
