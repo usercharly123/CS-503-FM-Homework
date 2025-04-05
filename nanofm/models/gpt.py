@@ -151,7 +151,8 @@ class GPT(nn.Module):
         # TODO: Compute the cross-entropy loss
         # Hint: Remember to ignore the padding token index in the loss calculation
         B, L, vocab_size = logits.size()
-        F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
+        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
+        return loss
 
     def forward(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
         """
