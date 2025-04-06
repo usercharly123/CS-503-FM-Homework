@@ -58,7 +58,7 @@ class GPT(nn.Module):
         self.max_seq_len = max_seq_len
         self.init_std = init_std
         
-        if self.padding_idx == -100:
+        if self.padding_idx == -100 and vocab_size < 100:
             self.padding_idx = None     # Default padding index is None
             
         self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=self.padding_idx) # TODO: Define the input embedding layer
@@ -154,8 +154,8 @@ class GPT(nn.Module):
         # TODO: Compute the cross-entropy loss
         # Hint: Remember to ignore the padding token index in the loss calculation
         B, L, vocab_size = logits.size()
-        if self.padding_idx is not None:
-            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=self.padding_idx)
+        if padding_idx is not None:
+            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
         else:
             loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L))
         return loss
@@ -174,7 +174,7 @@ class GPT(nn.Module):
         target_seq = seq[:, 1:] # Shape (B, L): e.g. T_1, T_2, ..., T_L, [EOS], [PAD] ... (with the first token dropped)
 
         # Forward pass through the model and compute loss
-        logits = self.forward_model(input_seq)
+        logits = self.forward_model(input_seq)      # Shape: (B, L, vocab_size)
         loss = self.compute_ce_loss(logits, target_seq, padding_idx=self.padding_idx)
 
         metrics_dict = {'ppl': torch.exp(loss)} # Perplexity
