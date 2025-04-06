@@ -61,7 +61,7 @@ class GPT(nn.Module):
         if self.padding_idx == -100:
             self.padding_idx = None     # Default padding index is None
             
-        self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=padding_idx) # TODO: Define the input embedding layer
+        self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=self.padding_idx) # TODO: Define the input embedding layer
         self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
         self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
