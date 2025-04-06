@@ -53,11 +53,14 @@ class GPT(nn.Module):
             init_std: float = 0.02,
         ):
         super().__init__()
-        self.seq_read_key = seq_read_key
+        self.seq_read_key = seq_read_key    
         self.padding_idx = padding_idx
         self.max_seq_len = max_seq_len
         self.init_std = init_std
-
+        
+        if self.padding_idx == -100:
+            self.padding_idx = None     # Default padding index is None
+            
         self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=padding_idx) # TODO: Define the input embedding layer
         self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
@@ -200,7 +203,7 @@ class GPT(nn.Module):
         self.eval()
 
         # Initialize the sequence with the start-of-sequence token
-        current_tokens = torch.tensor([context], dtype=torch.long, device=self.device)
+        current_tokens = torch.tensor([context], dtype=torch.long, device=self.device)      # shape (1, L)
         for _ in range(self.max_seq_len - len(context)):
 
             # Run a forward pass through the model to get the logits

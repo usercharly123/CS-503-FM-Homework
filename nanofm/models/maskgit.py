@@ -240,7 +240,7 @@ class MaskGIT(nn.Module):
         # The `schedule` should be a list of integers of length `num_steps`, where each integer
         # represents the number of tokens to unmask at that step. The sum of the integers in
         # `schedule` should equal `total_tokens`.
-        schedule = [total_tokens//num_steps for i in range(len(num_steps)-1)]
+        schedule = [total_tokens//num_steps for i in range(num_steps-1)]
         schedule.append(total_tokens//num_steps + total_tokens%num_steps)
 
         assert len(schedule) == num_steps, "Schedule length should match the number of steps."
@@ -319,7 +319,7 @@ class MaskGIT(nn.Module):
             # TODO: Sample new tokens for the selected_positions
             # Hint: Use the sample_tokens function from utils/sampling.py
             # Make sure to pass the `temp`, `top_k` and `top_p` arguments
-            samples, _ = sample_tokens(selected_logits, temp=temp, top_p=top_p, top_k=top_k) 
+            samples, _ = sample_tokens(selected_logits, temp, top_k, top_p)
             
             # TODO: Update the sequence and mask. 
             # Replace the selected positions in `seq` with the sampled tokens
