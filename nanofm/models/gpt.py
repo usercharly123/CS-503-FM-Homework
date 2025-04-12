@@ -122,8 +122,6 @@ class GPT(nn.Module):
         
         # TODO: Add the positional embeddings to the tokens
         # Hint: Make sure this works for sequences of different lengths
-        #positional_embeddings = self.positional_embedding[:, :L, :]
-        #x = token_embeddings + positional_embeddings
         x = token_embeddings + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of x_embedded
 
         # TODO: Define the causal mask for the transformer trunk. 
@@ -156,13 +154,8 @@ class GPT(nn.Module):
         """
         # TODO: Compute the cross-entropy loss
         # Hint: Remember to ignore the padding token index in the loss calculation
-        """ loss = F.cross_entropy(
-            logits.view(-1, logits.size(-1)),
-            target_seq.view(-1),
-            ignore_index=padding_idx
-        ) """
         B, L, vocab_size = logits.size()
-        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
+        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx, reduction='sum')
         """  if padding_idx is not None:
             loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
         else:
