@@ -160,7 +160,9 @@ class GPT(nn.Module):
             loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
         else:
             loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L)) """
-        return loss
+        # Count non-padding tokens
+        non_pad_tokens = (target_seq != padding_idx).sum()
+        return loss / non_pad_tokens  # Normalize by actual token count
 
     def forward(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
         """
