@@ -62,7 +62,7 @@ class GPT(nn.Module):
             self.padding_idx = None     # Default padding index is None """
             
         #self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=self.padding_idx) # TODO: Define the input embedding layer
-        self.input_embedding = nn.Embedding(vocab_size, dim) # TODO: Define the input embedding layer
+        self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=padding_idx) # TODO: Define the input embedding layer
         self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
         self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
@@ -155,14 +155,8 @@ class GPT(nn.Module):
         # TODO: Compute the cross-entropy loss
         # Hint: Remember to ignore the padding token index in the loss calculation
         B, L, vocab_size = logits.size()
-        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx, reduction='sum')
-        """  if padding_idx is not None:
-            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
-        else:
-            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L)) """
-        # Count non-padding tokens
-        non_pad_tokens = (target_seq != padding_idx).sum()
-        return loss / non_pad_tokens  # Normalize by actual token count
+        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
+        return loss
 
     def forward(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
         """
