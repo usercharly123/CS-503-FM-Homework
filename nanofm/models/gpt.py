@@ -124,7 +124,7 @@ class GPT(nn.Module):
         # False = masked-out, True = not masked. Shape: [1, L, L]
         # Hint: What shape should the mask have such that each token can attend to itself and
         # all previous tokens, but not to any future tokens?
-        mask = torch.triu(torch.ones((1, L, L), device=self.device), diagonal=0).bool()     # diag=0 to include the diagonal (self-attention)
+        mask = torch.tril(torch.ones((1, L, L), device=self.device), diagonal=0).bool()     # diag=0 to include the diagonal (self-attention)
             
         # TODO: Forward pass through Transformer trunk
         # Hint: Make sure to pass the causal mask to the transformer trunk too
