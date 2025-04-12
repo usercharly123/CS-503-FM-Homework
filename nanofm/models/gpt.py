@@ -58,10 +58,11 @@ class GPT(nn.Module):
         self.max_seq_len = max_seq_len
         self.init_std = init_std
         
-        if self.padding_idx == -100 and vocab_size < 100:
-            self.padding_idx = None     # Default padding index is None
+        """ if self.padding_idx == -100 and vocab_size < 100:
+            self.padding_idx = None     # Default padding index is None """
             
-        self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=self.padding_idx) # TODO: Define the input embedding layer
+        #self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=self.padding_idx) # TODO: Define the input embedding layer
+        self.input_embedding = nn.Embedding(vocab_size, dim) # TODO: Define the input embedding layer
         self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
         self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
@@ -117,11 +118,13 @@ class GPT(nn.Module):
         B, L = x.size() # batch size and sequence length
 
         # TODO: Embed the input tokens using the input embedding layer. Shape: [B, L, D]
-        x_embedded = self.input_embedding(x)
+        token_embeddings = self.input_embedding(x)
         
         # TODO: Add the positional embeddings to the tokens
         # Hint: Make sure this works for sequences of different lengths
-        x = x_embedded + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of x_embedded
+        positional_embeddings = self.positional_embedding[:, :L, :]
+        x = token_embeddings + positional_embeddings
+        #x = token_embeddings + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of x_embedded
 
         # TODO: Define the causal mask for the transformer trunk. 
         # False = masked-out, True = not masked. Shape: [1, L, L]
@@ -153,11 +156,16 @@ class GPT(nn.Module):
         """
         # TODO: Compute the cross-entropy loss
         # Hint: Remember to ignore the padding token index in the loss calculation
-        B, L, vocab_size = logits.size()
+        loss = F.cross_entropy(
+            logits.view(-1, logits.size(-1)),
+            target_seq.view(-1),
+            ignore_index=padding_idx
+        )
+        """ B, L, vocab_size = logits.size()
         if padding_idx is not None:
             loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
         else:
-            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L))
+            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L)) """
         return loss
 
     def forward(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
