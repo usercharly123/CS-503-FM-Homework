@@ -92,7 +92,7 @@ def get_args():
     parser.add_argument('--start_iteration', default=0, type=int, help='Start iteration')
     parser.add_argument('--auto_resume', action='store_true')
     parser.add_argument('--no_auto_resume', action='store_false', dest='auto_resume')
-    parser.set_defaults(auto_resume=False)    
+    parser.set_defaults(auto_resume=True)    
 
     # Distributed training parameters
     parser.add_argument('--device', default='cuda',
