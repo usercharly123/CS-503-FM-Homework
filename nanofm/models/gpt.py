@@ -122,9 +122,9 @@ class GPT(nn.Module):
         
         # TODO: Add the positional embeddings to the tokens
         # Hint: Make sure this works for sequences of different lengths
-        positional_embeddings = self.positional_embedding[:, :L, :]
-        x = token_embeddings + positional_embeddings
-        #x = token_embeddings + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of x_embedded
+        #positional_embeddings = self.positional_embedding[:, :L, :]
+        #x = token_embeddings + positional_embeddings
+        x = token_embeddings + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of x_embedded
 
         # TODO: Define the causal mask for the transformer trunk. 
         # False = masked-out, True = not masked. Shape: [1, L, L]
