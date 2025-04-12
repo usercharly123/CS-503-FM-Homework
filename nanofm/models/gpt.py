@@ -58,10 +58,6 @@ class GPT(nn.Module):
         self.max_seq_len = max_seq_len
         self.init_std = init_std
         
-        """ if self.padding_idx == -100 and vocab_size < 100:
-            self.padding_idx = None     # Default padding index is None """
-            
-        #self.input_embedding = nn.Embedding(vocab_size, dim, padding_idx=self.padding_idx) # TODO: Define the input embedding layer
         self.input_embedding = nn.Embedding(vocab_size, dim) # TODO: Define the input embedding layer
         self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         

@@ -94,7 +94,10 @@ class Attention(nn.Module):
 
         # TODO: Define here the linear layer(s) producing K, Q, V from the input x
         # Hint: Do you need to define three different projections, or can you use a single one for all three?
-        self.qkv = nn.Linear(dim, 3*head_dim*self.num_heads, bias=qkv_bias)
+        #self.qkv = nn.Linear(dim, 3*head_dim*self.num_heads, bias=qkv_bias)
+        self.q = nn.Linear(dim, head_dim*self.num_heads, bias=qkv_bias)
+        self.k = nn.Linear(dim, head_dim*self.num_heads, bias=qkv_bias)
+        self.v = nn.Linear(dim, head_dim*self.num_heads, bias=qkv_bias)
 
         self.attn_out_proj = nn.Linear(dim, dim, bias=proj_bias)
 
@@ -102,10 +105,13 @@ class Attention(nn.Module):
         B, L, D = x.shape # Batch size, sequence length, and dimension
 
         # TODO: Compute the keys K, queries Q, and values V from x. Each should be of shape [B num_heads L head_dim].
-        qkv = rearrange(self.qkv(x), "B L (three head_dim num_heads) -> three B num_heads L head_dim", num_heads=self.num_heads, three=3)
+        """ qkv = rearrange(self.qkv(x), "B L (three head_dim num_heads) -> three B num_heads L head_dim", num_heads=self.num_heads, three=3)
         q = qkv[0] # [B num_heads L head_dim]
         k = qkv[1] # [B num_heads L head_dim]   
-        v = qkv[2] # [B num_heads L head_dim]   
+        v = qkv[2] # [B num_heads L head_dim]    """
+        q = rearrange(self.q(x), "B L (head_dim num_heads) -> B num_heads L head_dim", num_heads=self.num_heads)
+        k = rearrange(self.k(x), "B L (head_dim num_heads) -> B num_heads L head_dim", num_heads=self.num_heads)
+        v = rearrange(self.v(x), "B L (head_dim num_heads) -> B num_heads L head_dim", num_heads=self.num_heads)
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads L L].
         # Hint: Use the already defined self.scale
