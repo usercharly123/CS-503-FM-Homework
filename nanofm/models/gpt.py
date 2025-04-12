@@ -162,10 +162,11 @@ class GPT(nn.Module):
             ignore_index=padding_idx
         ) """
         B, L, vocab_size = logits.size()
-        if padding_idx is not None:
+        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
+        """  if padding_idx is not None:
             loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
         else:
-            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L))
+            loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L)) """
         return loss
 
     def forward(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
