@@ -6,8 +6,6 @@ Welcome to the foundation model exercises! This homework consists of three parts
 2) In part 2, we will build a masked model in the style of MaskGIT.  
 3) In part 3, we will build a simple 4M-like multimodal model.
 
-Parts 1 and 2 are available now, and Part 3 will be available next week.
-
 ### Instructions
 
 The instructions for each of these three parts are provided in the notebooks, which you can find under `./notebooks/`. They will introduce the problem statement to you, explain what parts in the codebase need to be completed, and you will use them to perform inference on the trained models. You will be asked to run the cells in those notebooks, provide answers to questions, etc. 
@@ -81,4 +79,26 @@ Replace the placeholders as follows:
 Example Usage:
 ```bash
 sbatch submit_job.sh cfgs/nanoGPT/tinystories_d8w512.yaml abcdef1234567890 2
+```
+#### Multi-node Training: Submit as a Batch Job via SLURM
+
+For the third part of nano4M, we will scale up the training compute by utilizing 4 GPUs. To do this, we will train models using a multi-node GPU setup on the IZAR Cluster.
+
+Most commands remain the same as before, and we will use a specific multi-node training sbatch script.
+
+Run:
+```bash
+sbatch submit_job_multi_node_scitas.sh <config_file> <your_wandb_key>
+```
+
+Replace the placeholders as follows:
+
+- <config_file> — Path to your YAML config file
+
+- <your_wandb_key> — Your W&B API key
+
+
+Example Usage:
+```bash
+sbatch submit_job_multi_node_scitas.sh cfgs/nano4M/multiclevr_d6-6w512.yaml abcdef1234567890
 ```
