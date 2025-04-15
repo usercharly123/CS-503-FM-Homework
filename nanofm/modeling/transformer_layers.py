@@ -122,11 +122,9 @@ class Attention(nn.Module):
             # TODO: Apply the optional attention mask. Wherever the mask is False, replace the attention 
             # matrix value by negative infinity → zero attention weight after softmax.
             attn = attn.masked_fill(~mask, float("-inf"))
-            print(f"attn shape: {attn.shape}, mask shape: {mask.shape}")
-            print(f"attn: {attn}")
 
         # TODO: Compute the softmax over the last dimension
-        attn = F.softmax(attn, dim=-1)
+        attn = attn.softmax(dim=-1)
 
         # TODO: Weight the values V by the attention matrix and concatenate the different attention heads
         # Make sure to reshape the output to the original shape of x, i.e. [B L D]
