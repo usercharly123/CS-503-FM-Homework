@@ -20,7 +20,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from nanofm.modeling.transformer_layers import TransformerTrunk, LayerNorm
+from nanofm.modeling.transformer_layers0 import TransformerTrunk, LayerNorm
 from nanofm.utils.sampling import sample_tokens
 
 
