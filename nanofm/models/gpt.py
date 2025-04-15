@@ -53,18 +53,18 @@ class GPT(nn.Module):
             init_std: float = 0.02,
         ):
         super().__init__()
-        self.seq_read_key = seq_read_key
+        self.seq_read_key = seq_read_key    
         self.padding_idx = padding_idx
         self.max_seq_len = max_seq_len
         self.init_std = init_std
-
-        self.input_embedding = ??? # TODO: Define the input embedding layer
-        self.positional_embedding = ??? # TODO: Define the learnable positional embedding
         
-        self.trunk = ??? # TODO: Define the transformer trunk
+        self.input_embedding = nn.Embedding(vocab_size, dim)    # TODO: Define the input embedding layer
+        self.positional_embedding = nn.Parameter(torch.randn(max_seq_len, dim)) # TODO: Define the learnable positional embedding
         
-        self.out_norm = ??? # TODO: Define the output layer normalization. Use the LayerNorm class defined in modeling/transformer_layers.py
-        self.to_logits = ??? # TODO: Define the output projection layer
+        self.trunk = TransformerTrunk(dim, depth, head_dim, mlp_ratio, use_bias) # TODO: Define the transformer trunk
+        
+        self.out_norm = LayerNorm(dim) # TODO: Define the output layer normalization. Use the LayerNorm class defined in modeling/transformer_layers.py
+        self.to_logits = nn.Linear(dim, vocab_size, bias=False) # TODO: Define the output projection layer
 
         self.initialize_weights() # Weight initialization
 
@@ -114,27 +114,28 @@ class GPT(nn.Module):
         B, L = x.size() # batch size and sequence length
 
         # TODO: Embed the input tokens using the input embedding layer. Shape: [B, L, D]
-        ???
+        token_embeddings = self.input_embedding(x)
         
         # TODO: Add the positional embeddings to the tokens
         # Hint: Make sure this works for sequences of different lengths
-        ???
+        x = token_embeddings + self.positional_embedding[:L].unsqueeze(0) # To match the dimensions of token_embeddings
 
         # TODO: Define the causal mask for the transformer trunk. 
         # False = masked-out, True = not masked. Shape: [1, L, L]
         # Hint: What shape should the mask have such that each token can attend to itself and
         # all previous tokens, but not to any future tokens?
-        ???
+        mask = torch.tril(torch.ones((B, L, L), device=self.device), diagonal=0).bool()     # diag=0 to include the diagonal (self-attention)
             
         # TODO: Forward pass through Transformer trunk
         # Hint: Make sure to pass the causal mask to the transformer trunk too
-        ???
+        x = self.trunk(x, mask=mask)
         
         # TODO: Pass to the output normalization and output projection layer to compute the logits
-        ???
+        x = self.out_norm(x)
+        logits = self.to_logits(x)
 
         # TODO: Return the logits
-        return ???
+        return logits
 
     def compute_ce_loss(self, logits: torch.Tensor, target_seq: torch.LongTensor, padding_idx: int = -100) -> torch.Tensor:
         """
@@ -149,9 +150,11 @@ class GPT(nn.Module):
         """
         # TODO: Compute the cross-entropy loss
         # Hint: Remember to ignore the padding token index in the loss calculation
-        ???
+        B, L, vocab_size = logits.size()
+        loss = F.cross_entropy(logits.reshape(B*L, vocab_size), target_seq.reshape(B*L), ignore_index=padding_idx)
+        return loss
 
-    def forward(self, data_dict: Dict[str, Any]) -> Tuple[torch.Tensor, Dict[str, Any]]:
+    def forward(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
         """
         Forward pass through the model.
 
@@ -165,7 +168,7 @@ class GPT(nn.Module):
         target_seq = seq[:, 1:] # Shape (B, L): e.g. T_1, T_2, ..., T_L, [EOS], [PAD] ... (with the first token dropped)
 
         # Forward pass through the model and compute loss
-        logits = self.forward_model(input_seq)
+        logits = self.forward_model(input_seq)      # Shape: (B, L, vocab_size)
         loss = self.compute_ce_loss(logits, target_seq, padding_idx=self.padding_idx)
 
         metrics_dict = {'ppl': torch.exp(loss)} # Perplexity
@@ -197,22 +200,24 @@ class GPT(nn.Module):
         self.eval()
 
         # Initialize the sequence with the start-of-sequence token
-        current_tokens = torch.tensor([context], dtype=torch.long, device=self.device)
+        current_tokens = torch.tensor([context], dtype=torch.long, device=self.device)      # shape (1, L)
         for _ in range(self.max_seq_len - len(context)):
-
+            
             # Run a forward pass through the model to get the logits
-            ???
+            logits = self.forward_model(current_tokens)     # Shape: (B, L, vocab_size) with batch size B=1 at inference time
 
             # Keep only the last token's logits and sample the next token
             # Hint: Use the sample_tokens function from utils/sampling.py
             # Make sure to pass the temperature, top_k and top_p arguments
-            ???
+            last_logit = logits[:, -1, :]      # Shape: (B, vocab_size) with batch size B=1 at inference time
+            token, _ = sample_tokens(last_logit, temp, top_k, top_p)     
 
             # Concatenate the new token to the current_tokens sequence
-            ???
+            current_tokens = torch.cat([current_tokens, token.unsqueeze(1)], dim=1)
 
             # Break if the end-of-sequence token is generated
-            ???
+            if eos_idx is not None and token.item() == eos_idx:
+                break
 
         if was_training:
             self.train()
