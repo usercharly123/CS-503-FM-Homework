@@ -1,6 +1,8 @@
 *.egg-info
 *.tar.gz
 *.jpg
+*.json
+*.npy
 *.pyc
 .DS_Store
 __pycache__
