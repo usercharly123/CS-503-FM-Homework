@@ -105,7 +105,7 @@ class Attention(nn.Module):
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads L L].
         # Hint: Use the already defined self.scale
-        attn = torch.einsum("b num_heads i head_dim, b num_heads j head_dim -> b num_heads i j", q, k) * self.scale # [B num_heads L L]
+        attn = torch.einsum("bnlh, bnmh -> bnlm", q, k) * self.scale  # [B, num_heads, L, L]
 
         if mask is not None:
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
@@ -118,7 +118,7 @@ class Attention(nn.Module):
 
         # TODO: Weight the values V by the attention matrix and concatenate the different attention heads
         # Make sure to reshape the output to the original shape of x, i.e. [B L D]
-        x = torch.einsum("b num_heads i j, b num_heads j head_dim -> b num_heads i head_dim", attn, v) # [B num_heads L head_dim]
+        x = torch.einsum("bnlm, bnmh -> bnlh", attn, v)
         x = rearrange(x, "b num_heads i head_dim -> b i (num_heads head_dim)", num_heads=self.num_heads) # [B L D]
 
         # Output projection
@@ -166,7 +166,7 @@ class CrossAttention(nn.Module):
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads N M].
         # Hint: Use the already defined self.scale
-        attn = torch.einsum("b num_heads i head_dim, b h j head_dim -> b num_heads i j", q, k) * self.scale # [B num_heads N M]
+        attn = torch.einsum("bhnc,bhmc->bhnm", q, k) * self.scale  # [B, num_heads, N, M]
 
         if mask is not None:
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
@@ -179,7 +179,7 @@ class CrossAttention(nn.Module):
 
         # TODO: Weight the values V by the attention matrix and concatenate the different attention heads
         # Make sure to reshape the output to the original shape of x, i.e. [B N D]
-        x = torch.einsum("b num_heads i j, b num_heads j head_dim -> b num_heads i head_dim", attn, v) # [B num_heads N head_dim]
+        x = torch.einsum("bhnm,bhmc->bhnc", attn, v)
         x = rearrange(x, "b num_heads i head_dim -> b i (num_heads head_dim)", num_heads=self.num_heads) # [B N D]
         
         # Output projection
