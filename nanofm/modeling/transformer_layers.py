@@ -105,7 +105,7 @@ class Attention(nn.Module):
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads L L].
         # Hint: Use the already defined self.scale
-        attn = torch.einsum("b h i d, b h j d -> b h i j", q, k) * self.scale # [B num_heads L L]
+        attn = torch.einsum("b num_heads i head_dim, b num_heads j head_dim -> b num_heads i j", q, k) * self.scale # [B num_heads L L]
 
         if mask is not None:
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
@@ -114,12 +114,12 @@ class Attention(nn.Module):
             attn = attn.masked_fill(mask == 0, float("-inf"))
 
         # TODO: Compute the softmax over the last dimension
-        attn = attn.softmax(dim=-1)
+        attn = attn.softmax(dim=-1) # [B num_heads L L]
 
         # TODO: Weight the values V by the attention matrix and concatenate the different attention heads
         # Make sure to reshape the output to the original shape of x, i.e. [B L D]
-        x = torch.einsum("b h i j, b h j d -> b h i d", attn, v) # [B num_heads L head_dim]
-        x = rearrange(x, "b h i d -> b i (h d)", h=self.num_heads) # [B L D]
+        x = torch.einsum("b num_heads i j, b num_heads j head_dim -> b num_heads i head_dim", attn, v) # [B num_heads L head_dim]
+        x = rearrange(x, "b num_heads i head_dim -> b i (num_heads head_dim)", num_heads=self.num_heads) # [B L D]
 
         # Output projection
         x = self.attn_out_proj(x)
@@ -162,10 +162,11 @@ class CrossAttention(nn.Module):
         kv = self.kv(context) # [B M C]
         k, v = kv.chunk(2, dim=-1) # Split the output into K and V
         k = rearrange(k, "b m (num_heads head_dim) -> b num_heads m head_dim", num_heads=self.num_heads, head_dim=self.head_dim)
+        v = rearrange(v, "b m (num_heads head_dim) -> b num_heads m head_dim", num_heads=self.num_heads, head_dim=self.head_dim)
 
         # TODO: Compute the attention matrix (pre softmax) and scale it by 1/sqrt(d_k). It should be of shape [B num_heads N M].
         # Hint: Use the already defined self.scale
-        attn = torch.einsum("b h i d, b h j d -> b h i j", q, k) * self.scale # [B num_heads N M]
+        attn = torch.einsum("b num_heads i head_dim, b h j head_dim -> b num_heads i j", q, k) * self.scale # [B num_heads N M]
 
         if mask is not None:
             mask = rearrange(mask, "b n m -> b 1 n m") # Unsqueeze for multi-head attention
@@ -174,12 +175,12 @@ class CrossAttention(nn.Module):
             attn = attn.masked_fill(mask == 0, float("-inf"))
 
         # TODO: Compute the softmax over the last dimension
-        attn = attn.softmax(dim=-1)
+        attn = attn.softmax(dim=-1) # [B num_heads N M]
 
         # TODO: Weight the values V by the attention matrix and concatenate the different attention heads
         # Make sure to reshape the output to the original shape of x, i.e. [B N D]
-        x = torch.einsum("b h i j, b h j d -> b h i d", attn, v) # [B num_heads N head_dim]
-        x = rearrange(x, "b h i d -> b i (h d)", h=self.num_heads) # [B N D]
+        x = torch.einsum("b num_heads i j, b num_heads j head_dim -> b num_heads i head_dim", attn, v) # [B num_heads N head_dim]
+        x = rearrange(x, "b num_heads i head_dim -> b i (num_heads head_dim)", num_heads=self.num_heads) # [B N D]
         
         # Output projection
         x = self.attn_out_proj(x)
