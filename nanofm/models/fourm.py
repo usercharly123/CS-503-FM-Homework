@@ -446,7 +446,8 @@ class FourM(nn.Module):
         # The order in which we unmask the tokens is arbitrary, but here we will use a random order.
         # That means, we will randomly shuffle the positions from 0 to n_tokens_target - 1, and then
         # split them into `num_steps` steps. 
-        positions = np.shuffle(np.arange(n_tokens_target))
+        positions = np.arange(n_tokens_target)
+        np.random.shuffle(positions)
         positions = np.array_split(positions, num_steps)
         # dec_input_positions_list is a list of position indices of shape (1, k) for each step. 
         # Together, they should contain all the positions from 0 to n_tokens_target - 1 exactly once.
@@ -467,7 +468,7 @@ class FourM(nn.Module):
                 enc_input_positions=enc_input_positions,
                 dec_input_modalities=dec_input_modalities,
                 dec_input_positions=dec_input_positions.unsqueeze(0),
-            )[0][0]
+            )[0]
 
             # TODO: Sample new tokens for the predicted_logits
             # Hint: Use the sample_tokens function from utils/sampling.py
@@ -489,3 +490,4 @@ class FourM(nn.Module):
         pred_tokens = pred_tokens[indices.argsort()].unsqueeze(0)
         
         return pred_tokens, enc_input_tokens, enc_input_positions, enc_input_modalities
+
